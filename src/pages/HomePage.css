@@ -1,0 +1,177 @@
+.homepage-container {
+  color: var(--text-color);
+  text-align: center;
+}
+
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  position: relative;
+}
+
+.decorative-globes {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.small-globe {
+    position: absolute;
+    opacity: 0.15;
+}
+
+.small-globe .globe-image {
+    opacity: 1;
+    animation-name: spin;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.globe-container {
+  width: 90%;
+  max-width: 250px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto 2rem auto;
+}
+
+.globe-image {
+  width: 100%;
+  height: 100%;
+  animation: spin 30s linear infinite;
+  opacity: 0.5;
+}
+
+.small-globe-1 { width: 150px; height: 150px; top: 5%; left: 5%; }
+.small-globe-1 .globe-image { animation-duration: 50s; }
+
+.small-globe-2 { width: 100px; height: 100px; top: 15%; right: 10%; }
+.small-globe-2 .globe-image { animation-duration: 70s; animation-direction: reverse; }
+
+.small-globe-3 { width: 80px; height: 80px; top: 60%; right: 15%; }
+.small-globe-3 .globe-image { animation-duration: 45s; }
+
+.small-globe-4 { width: 200px; height: 200px; bottom: 5%; left: 10%; opacity: 0.1; }
+.small-globe-4 .globe-image { animation-duration: 90s; }
+
+.small-globe-5 { width: 120px; height: 120px; top: 40%; left: 20%; }
+.small-globe-5 .globe-image { animation-duration: 60s; animation-direction: reverse; }
+
+.small-globe-6 { width: 90px; height: 90px; bottom: 20%; right: 5%; }
+.small-globe-6 .globe-image { animation-duration: 55s; }
+
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+h1 {
+  font-size: 3.5rem;
+  color: #ffffff;
+  font-weight: 900;
+  text-shadow: 0 0 15px rgba(240, 185, 11, 0.4);
+  word-break: break-word;
+}
+
+.subtitle {
+  font-size: 1.3rem;
+  max-width: 600px;
+  color: var(--text-color);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.info-box {
+  background-color: rgba(30, 30, 30, 0.7);
+  border: 1px solid var(--primary-gold);
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 0 20px rgba(240, 185, 11, 0.15);
+}
+
+.info-box p {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #fff;
+}
+
+.info-box strong {
+    color: var(--primary-gold);
+}
+
+.claim-button {
+  padding: 1rem 2.5rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--text-on-gold);
+  background-color: var(--primary-gold);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(240, 185, 11, 0.2);
+}
+
+.claim-button:hover {
+  background-color: var(--secondary-gold);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(248, 208, 85, 0.3);
+}
+
+.forum-link {
+  margin-top: 2rem;
+  font-size: 1rem;
+  color: #aaa;
+}
+
+.forum-link a {
+  color: var(--primary-gold);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.forum-link a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .decorative-globes {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 380px) {
+  h1 {
+    font-size: 2.1rem;
+  }
+  .subtitle {
+      font-size: 1.15rem;
+  }
+}
