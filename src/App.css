@@ -25,7 +25,7 @@
 }
 
 .app-header {
-  padding: 1rem 0;
+  padding: 0.5rem 0; /* Уменьшено до половины */
 }
 
 .app-header .content-wrapper {
@@ -82,7 +82,7 @@
 
 @media (max-width: 600px) {
   .app-header {
-    padding: 1.25rem 0;
+    padding: 0.625rem 0; /* Уменьшено до половины для мобильных устройств */
   }
 
   .app-header .content-wrapper {
