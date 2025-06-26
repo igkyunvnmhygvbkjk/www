@@ -20,6 +20,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Скрытие значка reCAPTCHA - Используйте на свой страх и риск */
+.grecaptcha-badge {
+  visibility: hidden;
+}
+
+
 *,
 *::before,
 *::after {
