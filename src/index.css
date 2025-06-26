@@ -20,16 +20,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Настройки для значка reCAPTCHA - теперь он виден, но полупрозрачен */
-.grecaptcha-badge {
-  /* visibility: hidden; */ /* Эта строка теперь закомментирована/удалена */
-  opacity: 0.7; /* Делаем его полупрозрачным (значение от 0.0 до 1.0) */
-  transition: opacity 0.3s ease; /* Добавляем плавный переход для эффекта при наведении */
-}
-
-.grecaptcha-badge:hover {
-  opacity: 1; /* Полная видимость при наведении */
-}
+/* Удален весь блок стилей для reCAPTCHA badge */
 
 
 *,

