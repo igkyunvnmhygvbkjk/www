@@ -160,7 +160,24 @@ h1 {
 
 @media (max-width: 768px) {
     .decorative-globes {
-        display: none;
+        /* display: none; */ /* Эта строка закомментирована, чтобы коины были видны */
+        /* Дополнительные стили для маленьких экранов могут быть добавлены здесь */
+        /* Например, уменьшить их размер или количество, чтобы они не перегружали экран */
+        .small-globe {
+            width: 50px; /* Уменьшаем размер на мобильных */
+            height: 50px;
+            opacity: 0.1; /* Чуть менее заметными */
+        }
+        .small-globe-1 { top: 5%; left: 5%; }
+        .small-globe-2 { top: 10%; right: 5%; }
+        .small-globe-3 { top: 70%; right: 10%; }
+        .small-globe-4 { bottom: 10%; left: 5%; }
+        .small-globe-5 { top: 30%; left: 10%; }
+        .small-globe-6 { bottom: 20%; right: 5%; }
+        .small-globe-7 { top: 50%; left: 5%; }
+        .small-globe-8 { bottom: 5%; left: 30%; }
+        .small-globe-9 { top: 20%; right: 25%; }
+        .small-globe-10 { bottom: 35%; left: 15%; }
     }
 }
 
