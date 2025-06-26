@@ -20,7 +20,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Удален весь блок стилей для reCAPTCHA badge */
+/* Стили для значка reCAPTCHA v3 удалены, так как теперь используется v2 checkbox */
 
 
 *,
