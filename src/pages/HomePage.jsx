@@ -12,44 +12,49 @@ const HomePage = () => {
     
             <div className="decorative-globes">
                 <div className="small-globe small-globe-1">
-                    <img src="/globe.png" alt="Decorative Globe" className="globe-image" />
+                    <img src="/globe.png" alt="Decorative Globe" className="globe-image-small" />
                 </div>
                 <div className="small-globe small-globe-2">
-                    <img src="/globe.png" alt="Decorative Globe" className="globe-image" />
+                    <img src="/globe.png" alt="Decorative Globe" className="globe-image-small" />
                 </div>
                 <div className="small-globe small-globe-3">
-                    <img src="/globe.png" alt="Decorative Globe" className="globe-image" />
+                    <img src="/globe.png" alt="Decorative Globe" className="globe-image-small" />
                 </div>
                 <div className="small-globe small-globe-4">
-                    <img src="/globe.png" alt="Decorative Globe" className="globe-image" />
+                    <img src="/globe.png" alt="Decorative Globe" className="globe-image-small" />
                 </div>
-                 <div className="small-globe small-globe-5">
-                    <img src="/globe.png" alt="Decorative Globe" className="globe-image" />
+                <div className="small-globe small-globe-5">
+                    <img src="/globe.png" alt="Decorative Globe" className="globe-image-small" />
                 </div>
-                 <div className="small-globe small-globe-6">
-                    <img src="/globe.png" alt="Decorative Globe" className="globe-image" />
+                <div className="small-globe small-globe-6">
+                    <img src="/globe.png" alt="Decorative Globe" className="globe-image-small" />
+                </div>
+                <div className="small-globe small-globe-7">
+                    <img src="/globe.png" alt="Decorative Globe" className="globe-image-small" />
+                </div>
+                <div className="small-globe small-globe-8">
+                    <img src="/globe.png" alt="Decorative Globe" className="globe-image-small" />
+                </div>
+                <div className="small-globe small-globe-9">
+                    <img src="/globe.png" alt="Decorative Globe" className="globe-image-small" />
+                </div>
+                <div className="small-globe small-globe-10">
+                    <img src="/globe.png" alt="Decorative Globe" className="globe-image-small" />
                 </div>
             </div>
     
             <div className="hero-content">
-              <div className="globe-container">
-                <img src="/globe.png" alt="Crypto Wallets Globe" className="globe-image" />
+              <div className="sticker-container">
+                <video src="/sticker.webm" autoPlay loop muted playsInline className="sticker-video" />
               </div>
-    
-              <h1>$MORI COIN 🚀</h1>
-              <p className="subtitle">
-                Добрый день, господа.<br />
-                Начинаем творить историю.
+              <p className="welcome-message">Добро пожаловать!</p>
+              <h1>Держишь монету и не продаешь?</h1>
+              <p className="info-box">
+                <p>Профессор ценит твое отношение, забирай <strong>75.000 $MORI</strong> к себе на кошелек</p>
               </p>
-              <div className="info-box">
-                <p>Получите до <strong>50.000 $MORI COIN</strong> на свой кошелек в день листинга (25.06)</p>
-              </div>
               <button className="claim-button" onClick={() => setIsModalOpen(true)}>
-                Получить $MORI COIN
+                Забрать
               </button>
-              <p className="forum-link">
-                Наш форум: <a href="https://t.me/moriforum" target="_blank" rel="noopener noreferrer">@moriforum</a>
-              </p>
             </div>
           </div>
           
