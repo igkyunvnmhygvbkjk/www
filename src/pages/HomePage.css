@@ -8,8 +8,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 70vh;
+  min-height: 90vh; /* Увеличена минимальная высота для увеличения страницы по вертикали */
   position: relative;
+  padding-bottom: 5rem; /* Добавляем отступ снизу, чтобы кнопка не упиралась в футер */
 }
 
 .decorative-globes {
@@ -46,17 +47,17 @@
 
 .sticker-container {
   width: 90%;
-  max-width: 200px; /* Smaller for the sticker */
+  max-width: 200px; /* Размер стикера */
   aspect-ratio: 1 / 1;
-  margin: 0 auto 1rem auto; /* Adjusted margin */
+  margin: 0 auto 1rem auto; /* Отступ под стикером */
 }
 
 .sticker-video {
   width: 100%;
   height: 100%;
-  animation: spin 30s linear infinite;
-  opacity: 1; /* Ensure sticker is fully visible */
-  border-radius: 50%; /* Make it round if desired, or remove */
+  /* animation: spin 30s linear infinite; */ /* Удалено вращение стикера */
+  opacity: 1; /* Стикер полностью виден */
+  /* border-radius: 50%; */ /* Можно раскомментировать, если хотите, чтобы стикер был круглым */
 }
 
 /* Positions for more scattered small globes */
@@ -118,8 +119,6 @@ h1 {
   margin-bottom: 2rem; /* Added margin */
 }
 
-/* Removed the old .subtitle styling */
-
 .info-box {
   background-color: rgba(30, 30, 30, 0.7);
   border: 1px solid var(--primary-gold);
@@ -158,8 +157,6 @@ h1 {
   transform: translateY(-3px);
   box-shadow: 0 6px 20px rgba(248, 208, 85, 0.3);
 }
-
-/* Removed the old .forum-link styling */
 
 @media (max-width: 768px) {
     .decorative-globes {
